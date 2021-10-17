@@ -1,0 +1,45 @@
+\documentclass[../main.tex]{subfiles}
+\graphicspath{{\subfix{../images/}}}
+\begin{document}
+
+\section{Локализация}
+
+% \begin{figure}[ht]
+    % \centering
+    % \includegraphics[width=15cm]{../images/eq_plot_1.png}
+% \end{figure}
+
+
+Требуется найти непересекающиеся отрезки $[a_i, b_i]$, каждому из которых принадлежит один и только один корень данного уравнения $x_i^*$. \\
+Пусть $f(x) = a_0 x^n + a_1 x^{n - 1} + ... + a_{n - 1}x + a_n = 0 $, тогда требуется
+
+\setlist{nolistsep}
+\begin{enumerate}
+    \item Определить число этих корней $N = N_+ + N_-$;
+    \begin{itemize}
+        \item Т. Декарта: число положительных корней равно числу перемен знаков в последовательности коэффициентов $a_0, a_1, ... , a_n$ или на четное число меньше.
+        \item Все корни многочлена (включая комплексные) лежат в кольце
+            $$ \frac{|a_n|}{|a_n| + B} <= |z| <= 1 + \frac{A}{|a_0|} $$
+        где $ A = max\{|a_1|,|a_2|,...,|a_n|\}$ , $B = max\{|a_0|,|a_1|,...,|a_{n−1}|\} $
+    \end{itemize}
+
+    \item Определить отрезки, на которых лежат все действительные корни;
+    \item Найти $N$ непересекающихся отрезков $[a_i,b_i]$, для которых $f(a_i) f(b_i) < 0$.
+\end{enumerate}
+
+\subsection{Графики функций и выбор отрезков}
+
+
+
+\begin{figure}[ht]
+    \centering
+    \subfloat[\centering $ 3x + 4x^3 - 12 x^2 - 5 = 0 $]{{\input{../images/eq_plot_1.pgf} }}%
+    \qquad
+    \subfloat[\centering $ 2 \tan (x) - \frac{x}{2} + 1 = 0 $]{{\input{../images/eq_plot_2.pgf} }}%
+    \caption{Графики}%
+    \label{fig:example}%
+\end{figure}
+
+Первая функция возрастает во всей области определения. Корень находится в сегменте $[2.5, 3.5]$. Вторая функция периодическая. Один из корней находится в сегменте $ [-1, 0] $.
+
+\end{document}

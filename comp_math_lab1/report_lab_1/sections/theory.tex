@@ -1,0 +1,57 @@
+\documentclass[../main.tex]{subfiles}
+\graphicspath{{\subfix{../images/}}}
+\begin{document}
+
+\begin{description}
+    \item[Уточнение корней] Для каждого корня $x_i^* \in [a_i,b_i]$ данного уравнения требуется найти $\tilde{x_i}$ такое, что $|\tilde{x_i} - x_i^*| < \varepsilon$, где $\varepsilon$ - заданная погрешность.
+\end{description}
+
+
+\subsection{Метод половинного деления}
+
+Отыскивается $\tilde{x}$ - приближение к корню $x^* \in [a, b]$ с точностью $\varepsilon$.
+
+\setlist{nolistsep}
+\begin{itemize}
+    \item[Шаг 1.] $ m = 0 $
+    \item[Шаг 2.] $ a_m = a, b_m = b $
+    \item[Шаг 3.] $ c= \frac{a_m + b_m}{2} $
+    \item[Шаг 4.] (a) Если $f(c)f(a_m) > 0$, то $a_{m+1} = c, b_{m+1} = b_m$
+        (б) Eсли $f(c)f(b_m) > 0$, то $a_{m+1} = a_m, b_{m+1} = c$
+    \item[Шаг 5.] Если $|b_{m+1} - a_{m+1}| > \varepsilon$, то $m = m + 1$, перейти к Шагу 2, иначе $\tilde{x} = \frac{a_{m+1} + b_{m+1}}{2}$
+\end{itemize}
+
+\subsection{Метод простой итерации}
+
+$$
+f(x) = 0 \to x = g(x) \to x_{n+1} = g(x_n)
+$$
+
+Условие сходимости: $\forall x \in [a, b]: |g'(x)| < 1$ или $\forall x', x'' \in [a, b]: |g(x') - g(x'')| <= q|x' - x''|, q < 1$
+
+\subsection{Метод Ньютона}
+
+$$
+f(x) = f(x_n) + f'(x_n)(x - x_n) \to x_{n+1} = x_n - \frac{f(x_n)}{f'(x_n)}
+$$
+
+Условие сходимости: $\frac{1}{2} \frac{M_2}{m_1} |x_0 - x^*|^2 < 1$
+
+$$
+|x_{n+1} - x^*| < \frac{1}{2}\frac{M_2}{m_1}|x_n - x^*|^2 < C^{-1}(C|x_0 - x^*|)^{2^n}
+$$
+
+Выбор начального приближения: $f(x_0)f''(x_0) > 0$.
+Практический критерий оценки достижения заданной точности:
+
+$$
+|x_{n+1} - x^*| < \frac{1}{2}\frac{M_2}{m_1}|x_{n+1} - x_n|^2 < \epsilon
+$$
+
+\subsection{Метод Секущих}
+
+В методе Ньютона подставим: $f'(x_n) \approx \dfrac{f(x_n) - f(x_{n-1})}{x_n - x_{n-1}}$
+
+$$ x_{n+1} = x_n - \frac{f(x_n)(x_n - x_{n-1})}{f(x_n) - f(x_{n-1})} $$
+
+\end{document}
