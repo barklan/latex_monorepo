@@ -32,3 +32,39 @@ func TestPolinomeParse(t *testing.T) {
 		t.Errorf("got %v want %v", got, want)
 	}
 }
+
+func TestCombinations(t *testing.T) {
+	set := []*big.Rat{
+		big.NewRat(1, 1),
+		big.NewRat(2, 1),
+		big.NewRat(3, 1),
+	}
+
+	got := Combinations(set, 2)
+
+	want := [][]*big.Rat{
+		{big.NewRat(1, 1), big.NewRat(2, 1)},
+		{big.NewRat(1, 1), big.NewRat(3, 1)},
+		{big.NewRat(2, 1), big.NewRat(3, 1)},
+	}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("got %v want %v", got, want)
+	}
+}
+
+func TestMultiSumCombinations(t *testing.T) {
+	combinations := [][]*big.Rat{
+		{big.NewRat(1, 1), big.NewRat(2, 1)},
+		{big.NewRat(1, 1), big.NewRat(3, 1)},
+		{big.NewRat(2, 1), big.NewRat(3, 1)},
+	}
+
+	got := MultiSumCombinations(combinations)
+
+	want := big.NewRat(11, 1)
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("got %v want %v", got, want)
+	}
+}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"math/big"
+	"math/bits"
 )
 
 func main() {
@@ -100,17 +101,18 @@ func (p *Polinome) Add(other Polinome) {
 }
 
 func (p *Polinome) Parse() {
-	first := big.NewRat(1, 1)
-	first.Set(p.A)
-	p.Coefs = append(p.Coefs, first)
+	p.Coefs = make([]*big.Rat, 3)
+	p.Coefs[0] = big.NewRat(1, 1)
+
+	// for i := 1; i < 3; i++ {
+	// coef := big.NewRat(0, 1)
+	// }
 
 	second := big.NewRat(0, 1)
 	for _, root := range p.Roots {
 		second.Add(second, root)
 	}
-	second.Mul(second, p.A)
-	second.Neg(second)
-	p.Coefs = append(p.Coefs, second)
+	p.Coefs[1] = second
 
 	third := big.NewRat(0, 1)
 	for i := range p.Roots {
@@ -120,6 +122,54 @@ func (p *Polinome) Parse() {
 			third.Add(third, inter)
 		}
 	}
-	third.Mul(third, p.A)
-	p.Coefs = append(p.Coefs, third)
+	p.Coefs[2] = third
+
+	for i := range p.Coefs {
+		if i%2 != 0 {
+			p.Coefs[i].Neg(p.Coefs[i])
+		}
+		p.Coefs[i].Mul(p.Coefs[i], p.A)
+	}
+}
+
+func Combinations(set []*big.Rat, n int) (subsets [][]*big.Rat) {
+	length := uint(len(set))
+
+	if n > len(set) {
+		n = len(set)
+	}
+
+	// Go through all possible combinations of objects
+	// from 1 (only first object in subset) to 2^length (all objects in subset)
+	for subsetBits := 1; subsetBits < (1 << length); subsetBits++ {
+		if n > 0 && bits.OnesCount(uint(subsetBits)) != n {
+			continue
+		}
+
+		var subset []*big.Rat
+
+		for object := uint(0); object < length; object++ {
+			// checks if object is contained in subset
+			// by checking if bit 'object' is set in subsetBits
+			if (subsetBits>>object)&1 == 1 {
+				// add object to subset
+				subset = append(subset, set[object])
+			}
+		}
+		// add subset to subsets
+		subsets = append(subsets, subset)
+	}
+	return subsets
+}
+
+func MultiSumCombinations(set [][]*big.Rat) *big.Rat {
+	result := big.NewRat(0, 1)
+	for _, subset := range set {
+		multi := big.NewRat(1, 1)
+		for _, bigRat := range subset {
+			multi.Mul(multi, bigRat)
+		}
+		result.Add(result, multi)
+	}
+	return result
 }
