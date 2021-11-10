@@ -26,6 +26,8 @@ func TestPolinomeParse(t *testing.T) {
 		big.NewRat(5, 1),
 		big.NewRat(-180, 1),
 		big.NewRat(2195, 1),
+		big.NewRat(-10080, 1),
+		big.NewRat(12740, 1),
 	}
 
 	if !reflect.DeepEqual(got, want) {

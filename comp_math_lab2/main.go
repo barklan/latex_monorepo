@@ -36,6 +36,8 @@ func main() {
 			big.NewRat(0, 1),
 			big.NewRat(0, 1),
 			big.NewRat(0, 1),
+			big.NewRat(0, 1),
+			big.NewRat(0, 1),
 		},
 	}
 
@@ -55,12 +57,18 @@ func main() {
 		}
 		interPoli.Parse()
 
-		fmt.Printf("Intermediate polinome: %v\n", interPoli)
+		// fmt.Printf("Intermediate polinome: %v\n", interPoli)
 
 		polinome.Add(interPoli)
 	}
 
-	fmt.Printf("Polinome: %v", polinome)
+	fmt.Printf("Polinome:\nP = %s", polinome)
+
+	derivative := polinome.Derivative()
+	fmt.Printf("\nP' = %s", derivative)
+
+	secondDerivative := derivative.Derivative()
+	fmt.Printf("\nP'' = %s", secondDerivative)
 }
 
 func wPolinome(table map[*big.Rat]*big.Rat, xTarget *big.Rat) *big.Rat {
@@ -91,6 +99,32 @@ type Polinome struct {
 	A      *big.Rat
 }
 
+func (p Polinome) String() string {
+	var s string
+	for i := p.Degree; i >= 0; i-- {
+		s += fmt.Sprintf("%v x^%d", p.Coefs[p.Degree-i], i)
+		if i != 0 {
+			s += fmt.Sprintf(" + ")
+		}
+	}
+	return s
+}
+
+func (p *Polinome) Derivative() Polinome {
+	derivative := Polinome{
+		Degree: p.Degree - 1,
+		Coefs:  make([]*big.Rat, len(p.Coefs)-1),
+	}
+
+	for i := 0; i < len(p.Coefs)-1; i++ {
+		new := big.NewRat(1, 1)
+		multiplier := big.NewRat(int64(p.Degree-i), 1)
+		derivative.Coefs[i] = new.Mul(p.Coefs[i], multiplier)
+	}
+
+	return derivative
+}
+
 func (p *Polinome) Add(other Polinome) {
 	if p.Degree != other.Degree {
 		log.Panic("no")
@@ -101,28 +135,14 @@ func (p *Polinome) Add(other Polinome) {
 }
 
 func (p *Polinome) Parse() {
-	p.Coefs = make([]*big.Rat, 3)
+	p.Coefs = make([]*big.Rat, p.Degree+1)
 	p.Coefs[0] = big.NewRat(1, 1)
 
-	// for i := 1; i < 3; i++ {
-	// coef := big.NewRat(0, 1)
-	// }
-
-	second := big.NewRat(0, 1)
-	for _, root := range p.Roots {
-		second.Add(second, root)
+	for i := 1; i <= p.Degree; i++ {
+		combinations := Combinations(p.Roots, i)
+		coef := MultiSumCombinations(combinations)
+		p.Coefs[i] = coef
 	}
-	p.Coefs[1] = second
-
-	third := big.NewRat(0, 1)
-	for i := range p.Roots {
-		for j := i + 1; j < len(p.Roots); j++ {
-			inter := big.NewRat(1, 1)
-			inter.Mul(p.Roots[i], p.Roots[j])
-			third.Add(third, inter)
-		}
-	}
-	p.Coefs[2] = third
 
 	for i := range p.Coefs {
 		if i%2 != 0 {
