@@ -1,0 +1,18 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+
+\section{Интерполяционный полином в форме Лагранжа}
+
+% \begin{figure}[ht]
+    % \centering
+    % \includegraphics[width=15cm]{../images/eq_plot_1.png}
+% \end{figure}
+
+\newcommand\myeq{\stackrel{\mathclap{\normalfont\mbox{def}}}{=}}
+
+\begin{align*}
+    & W(x) \myeq (x - x_1) \times ... \times (x - x_n), deg W = n & \\
+    & W_j(x) \myeq \frac{W(x)}{x - x_j} & \\
+    & f(x) \equiv \sum_{j=1}^{n} \frac{y_j W_j(x)}{W_j{x_j}} &
+\end{align*}
+

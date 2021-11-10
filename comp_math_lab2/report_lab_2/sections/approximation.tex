@@ -1,0 +1,118 @@
+\documentclass[../main.tex]{subfiles}
+\graphicspath{{\subfix{../images/}}}
+\begin{document}
+
+
+\subsection{Метод половинного деления}
+
+Будем уточнять все корти с точностью $\epsilon = 10^{-4}$.
+\bigskip
+
+% \definecolor{bg}{rgb}{0.98,0.98,0.98}
+% Use optional arg bgcolor=bg
+\inputminted[mathescape,frame=single,framesep=2mm,fontsize=\scriptsize,
+label=bisection.go (\href{https://github.com/barklan/computational_mathematics}{GitHub})
+]{go}{
+../numerical/bisection.go
+}
+
+\textbf{Для первой функции}
+
+$$ f(x) = 3x + 4x^3 - 12 x^2 - 5 $$
+
+потребовалось 14 итераций до нужной точности на отрезке $[2.5, 3.5]$ с найденным заначением $x = 2.89019775390625$.
+
+\textbf{Для второй функции}
+
+$$  f(x) = 2 \tan (x) - \frac{x}{2} + 1 = 0 $$
+
+потребовалось 15 итераций на отрезке $[-1, 1]$ c найденным значением $x = -0.57135009765625$.
+
+\newpage
+\subsection{Метод секущих}
+\bigskip
+
+\inputminted[mathescape,frame=single,framesep=2mm,fontsize=\scriptsize,
+label=secant.go
+]{go}{
+../numerical/secant.go
+}
+
+Для достижения нужной точности потребовалось 30 итераций для обеих функций.
+
+\newpage
+\subsection{Метод простой итерации}
+
+\bigskip
+\inputminted[mathescape,frame=single,framesep=2mm,fontsize=\scriptsize,
+label=fixed\_point\_iteration.go
+]{go}{
+../numerical/fixed_point_iteration.go
+}
+
+Для метода простой итерации приведем выражение вида $f(x) = 0$ к виду $x = g(x)$.
+
+$$ x = \sqrt[3]{3x^2 - 0.75x + 1.25} $$
+
+\bigskip
+\begin{tiny}
+\begin{verbatim}
+Iteration-1, x1 = 2.626794 and fn(x1) = -7.420175
+Iteration-3, x1 = 2.772188 and fn(x1) = -3.686390
+Iteration-5, x1 = 2.837943 and fn(x1) = -1.706944
+Iteration-7, x1 = 2.867166 and fn(x1) = -0.766414
+Iteration-9, x1 = 2.880054 and fn(x1) = -0.339508
+Iteration-11, x1 = 2.885718 and fn(x1) = -0.149510
+Iteration-13, x1 = 2.888204 and fn(x1) = -0.065670
+Iteration-15, x1 = 2.889294 and fn(x1) = -0.028812
+Iteration-17, x1 = 2.889772 and fn(x1) = -0.012634
+Iteration-19, x1 = 2.889982 and fn(x1) = -0.005539
+Iteration-21, x1 = 2.890074 and fn(x1) = -0.002428
+Iteration-23, x1 = 2.890114 and fn(x1) = -0.001064
+Iteration-25, x1 = 2.890132 and fn(x1) = -0.000467
+Iteration-27, x1 = 2.890139 and fn(x1) = -0.000205
+Iteration-29, x1 = 2.890143 and fn(x1) = -0.000090
+\end{verbatim}
+\end{tiny}
+
+Для заданной точности потребовалось 29 итераций.
+
+\subsection{Метод Ньютона}
+
+\bigskip
+\inputminted[mathescape,frame=single,framesep=2mm,fontsize=\scriptsize,
+label=newtons\_method.go
+]{go}{
+../numerical/newtons_method.go
+}
+
+Для первого уравнения потребовалось 5 итераций:
+
+\begin{tiny}
+\begin{verbatim}
+    Newton's method:
+    Iteration-1, x1 = 0.000000 and fn(x1) = -5.000000
+    Iteration-2, x1 = 3.055556 and fn(x1) = 6.241427
+    Iteration-3, x1 = 2.905894 and fn(x1) = 0.539087
+    Iteration-4, x1 = 2.890309 and fn(x1) = 0.005540
+    Iteration-5, x1 = 2.890145 and fn(x1) = 0.000001
+\end{verbatim}
+\end{tiny}
+
+\newpage
+Для второго - 7:
+
+\begin{tiny}
+\begin{verbatim}
+    Iteration-1, x1 = 0.000000 and fn(x1) = 1.000000
+    Iteration-2, x1 = -0.764296 and fn(x1) = -0.535176
+    Iteration-3, x1 = -0.624857 and fn(x1) = -0.130106
+    Iteration-4, x1 = -0.582066 and fn(x1) = -0.025216
+    Iteration-5, x1 = -0.573268 and fn(x1) = -0.004543
+    Iteration-6, x1 = -0.571664 and fn(x1) = -0.000806
+    Iteration-7, x1 = -0.571379 and fn(x1) = -0.000143
+\end{verbatim}
+\end{tiny}
+
+
+\end{document}
