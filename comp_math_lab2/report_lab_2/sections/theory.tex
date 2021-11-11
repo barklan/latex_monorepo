@@ -1,7 +1,9 @@
 \documentclass[../main.tex]{subfiles}
 \begin{document}
 
-\section{Интерполяционный полином в форме Лагранжа}
+\section{Теория}
+
+\subsection{Интерполяционный полином в форме Лагранжа}
 
 % \begin{figure}[ht]
     % \centering
@@ -16,5 +18,16 @@
     & f(x) \equiv \sum_{j=1}^{n} \frac{y_j W_j(x)}{W_j{x_j}} &
 \end{align*}
 
+\subsection{Интерполяционный полином в форме Ньютона}
+
+\begin{align*}
+    & P_n(x) = f(x_0) + (x-x_0)f(x_0;x_1) + ... + (x-x_0)...(x-x_{n-1})f(x_0;...;x_n)
+\end{align*}
+
+где $f(x_0;...;x_n)$ - разделённая разность порядка $n$:
+
+\begin{align*}
+    & f(x_0; x_1; ...; x_n) = \sum_{j=0}^n \frac{f(x_j)}{\prod_{i=0, i \neq j}^n (x_j - x_i)}
+\end{align*}
 
 \end{document}

@@ -7,79 +7,114 @@ import (
 	"math/bits"
 )
 
+func data(variant int) (map[float64]float64, [][]float64) {
+	var tableNtn [][]float64
+	switch variant {
+	case 1:
+		tableNtn = [][]float64{
+			{1910.0, 92228496.0},
+			{1920.0, 106021537.0},
+			{1930.0, 123202624.0},
+			{1940.0, 132164569.0},
+			{1950.0, 151325798.0},
+			{1960.0, 179323175.0},
+			{1970.0, 203211926.0},
+			{1980.0, 226545805.0},
+			{1990.0, 248709873.0},
+			{2000.0, 281421906.0},
+		}
+	case 2:
+		tableNtn = [][]float64{
+			{5, 296},
+			{7, 520},
+			{9, 744},
+			{11, 982},
+			{13, 1248},
+			{15, 1570},
+			{17, 2256},
+			{19, 2256},
+			{21, 2256},
+		}
+	case 5:
+		tableNtn = [][]float64{
+			{7, 83.7},
+			{12, 72.9},
+			{17, 63.2},
+			{22, 54.7},
+			{27, 47.5},
+			{32, 41.4},
+			{37, 36.3},
+		}
+	case 6:
+		tableNtn = [][]float64{
+			{0.0, 0.5},
+			{1.0, 0.3},
+			{3.0, 0.3},
+			{4.0, 0.2},
+			{5.0, 0.1},
+		}
+	case 7:
+		tableNtn = [][]float64{
+			{0.0, 5.0},
+			{0.1, 2.5},
+			{0.2, 3.0},
+			{0.3, -2.5},
+			{0.4, -0.2},
+		}
+
+	}
+	table := map[float64]float64{}
+	for _, xy := range tableNtn {
+		table[xy[0]] = xy[1]
+	}
+
+	return table, tableNtn
+}
+
 func main() {
-	// table := map[float64]float64{
-	// 	0.0: 5.0,
-	// 	0.1: 2.5,
-	// 	0.2: 3.0,
-	// 	0.3: -2.5,
-	// 	0.4: -0.2,
-	// }
+	variants := []int{1, 2, 5, 6, 7}
+	for _, variant := range variants {
+		fmt.Printf("\n %d -----------\n", variant)
+		table, tableNtn := data(variant)
 
-	// Variant 1
-	table := map[float64]float64{
-		1910.0: 92228496.0,
-		1920.0: 106021537.0,
-		1930.0: 123202624.0,
-		1940.0: 132164569.0,
-		1950.0: 151325798.0,
-		1960.0: 179323175.0,
-		1970.0: 203211926.0,
-		1980.0: 226545805.0,
-		1990.0: 248709873.0,
-		2000.0: 281421906.0,
+		bigTable := floatToBigTable(table)
+		lPolinome := Lagrange(bigTable)
+
+		bigTableNtn := floatToBigTableN(tableNtn)
+		nPolinome := NewTon(bigTableNtn)
+
+		poli := map[string]Polinome{
+			"Lagrange": lPolinome,
+			"Newton":   nPolinome,
+		}
+
+		for name, polinome := range poli {
+			fmt.Printf("\n%s's Polinome:\nP = %s", name, polinome)
+
+			switch variant {
+			case 1:
+				xIlyana := big.NewRat(2010, 1)
+				exact := polinome.Exact(xIlyana).FloatString(0)
+				fmt.Printf("\nx = %v; result: %v", xIlyana, exact)
+			case 5:
+				x := big.NewRat(25, 1)
+				fmt.Printf("\nx = %v; result: %v", x, polinome.Exact(x))
+				fmt.Printf("\nx = %v; approx: %v", x, polinome.Exact(x).FloatString(5))
+			case 6:
+				derivative := polinome.Derivative()
+				xVar6 := big.NewRat(5, 1)
+				fmt.Printf("\nx = %v; result: %v", xVar6, derivative.Exact(xVar6))
+			case 7:
+				derivative := polinome.Derivative()
+				secondDerivative := derivative.Derivative()
+				x := big.NewRat(3, 10)
+				fmt.Printf("\nx = %v; result: %v", x, secondDerivative.Exact(x))
+				fmt.Printf("\nx = %v; approx: %v", x, secondDerivative.Exact(x).FloatString(5))
+
+			}
+			fmt.Println()
+		}
 	}
-	tableNtn := [][]float64{
-		{1910.0, 92228496.0},
-		{1920.0, 106021537.0},
-		{1930.0, 123202624.0},
-		{1940.0, 132164569.0},
-		{1950.0, 151325798.0},
-		{1960.0, 179323175.0},
-		{1970.0, 203211926.0},
-		{1980.0, 226545805.0},
-		{1990.0, 248709873.0},
-		{2000.0, 281421906.0},
-	}
-
-	// Variant 2
-	// table := map[float64]float64{
-	// 	5:  296,
-	// 	7:  520,
-	// 	9:  744,
-	// 	11: 982,
-	// 	13: 1248,
-	// 	15: 1570,
-	// 	17: 2256,
-	// 	19: 2256,
-	// 	21: 2256,
-	// }
-	// tableNtn := [][]float64{
-	// 	{5, 296},
-	// 	{7, 520},
-	// 	{9, 744},
-	// 	{11, 982},
-	// 	{13, 1248},
-	// 	{15, 1570},
-	// 	{17, 2256},
-	// 	{19, 2256},
-	// 	{21, 2256},
-	// }
-
-	// Variant 7
-	// table := map[float64]float64{
-	// 	0.0: 0.5,
-	// 	1.0: 0.3,
-	// 	3.0: 0.3,
-	// 	4.0: 0.2,
-	// 	5.0: 0.1,
-	// }
-
-	bigTable := floatToBigTable(table)
-	Lagrange(bigTable)
-
-	bigTableNtn := floatToBigTableN(tableNtn)
-	NewTon(bigTableNtn)
 }
 
 func floatToBigTableN(table [][]float64) [][]*big.Rat {
@@ -98,7 +133,7 @@ func floatToBigTableN(table [][]float64) [][]*big.Rat {
 	return bigTable
 }
 
-func NewTon(bigTable [][]*big.Rat) {
+func NewTon(bigTable [][]*big.Rat) Polinome {
 	degree := len(bigTable) - 1
 	polinome := Polinome{
 		Degree: degree,
@@ -128,15 +163,7 @@ func NewTon(bigTable [][]*big.Rat) {
 
 	polinome.Coefs[len(polinome.Coefs)-1].Add(polinome.Coefs[len(polinome.Coefs)-1], bigTable[len(bigTable)-1][1])
 
-	fmt.Println()
-	fmt.Printf("\nNewton's polinome:\nP = %v", polinome)
-
-	xIlyana := big.NewRat(2010, 1)
-	exact := polinome.Exact(xIlyana)
-	fmt.Printf("\nx = %v; result: %v", xIlyana, exact)
-
-	derivative := polinome.Derivative()
-	fmt.Printf("\nP' = %s", derivative)
+	return polinome
 }
 
 func DivDiff(bigTable [][]*big.Rat, n int) *big.Rat {
@@ -161,10 +188,12 @@ func DivDiff(bigTable [][]*big.Rat, n int) *big.Rat {
 		result.Add(result, inter)
 	}
 
+	fmt.Printf("\nDivdiff %d: %v", n, result)
+
 	return result
 }
 
-func Lagrange(bigTable map[*big.Rat]*big.Rat) {
+func Lagrange(bigTable map[*big.Rat]*big.Rat) Polinome {
 	lagrangeCoefMap := make(map[*big.Rat]*big.Rat)
 
 	for x, y := range bigTable {
@@ -211,23 +240,7 @@ func Lagrange(bigTable map[*big.Rat]*big.Rat) {
 
 	}
 
-	fmt.Printf("Polinome:\nP = %s", polinome)
-
-	// xIlyana := big.NewRat(2010, 1)
-	// exact := polinome.Exact(xIlyana).FloatString(0)
-	// fmt.Printf("\nx = %v; result: %v", xIlyana, exact)
-
-	derivative := polinome.Derivative()
-	fmt.Printf("\nP' = %s", derivative)
-
-	// xVar7 := big.NewRat(5, 1)
-	// fmt.Printf("\nx = %v; result: %v", xVar7, derivative.Exact(xVar7))
-
-	secondDerivative := derivative.Derivative()
-	fmt.Printf("\nP'' = %s", secondDerivative)
-
-	x := big.NewRat(3, 10)
-	fmt.Printf("\nx = %v; result: %v", x, secondDerivative.Exact(x))
+	return polinome
 }
 
 func wPolinome(table map[*big.Rat]*big.Rat, xTarget *big.Rat) *big.Rat {
