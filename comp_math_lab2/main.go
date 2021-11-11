@@ -16,6 +16,29 @@ func main() {
 		0.4: -0.2,
 	}
 
+	// Variant 7
+	// table := map[float64]float64{
+	// 	0.0: 0.5,
+	// 	1.0: 0.3,
+	// 	3.0: 0.3,
+	// 	4.0: 0.2,
+	// 	5.0: 0.1,
+	// }
+
+	// Variant 1
+	// table := map[float64]float64{
+	// 	1910.0: 92228496.0,
+	// 	1920.0: 106021537.0,
+	// 	1930.0: 123202624.0,
+	// 	1940.0: 132164569.0,
+	// 	1950.0: 151325798.0,
+	// 	1960.0: 179323175.0,
+	// 	1970.0: 203211926.0,
+	// 	1980.0: 226545805.0,
+	// 	1990.0: 248709873.0,
+	// 	2000.0: 281421906.0,
+	// }
+
 	bigTable := floatToBigTable(table)
 	lagrangeCoefMap := make(map[*big.Rat]*big.Rat)
 
@@ -23,7 +46,8 @@ func main() {
 		lagrangeCoef := big.NewRat(1, 1)
 		multi := big.NewRat(1, 1)
 		w := wPolinome(bigTable, x)
-		lagrangeCoef.Mul(y, multi.Inv(w))
+		inverted := multi.Inv(w)
+		lagrangeCoef.Mul(y, inverted)
 		fmt.Printf("x: %s\t coef: %s\n", x, lagrangeCoef)
 		lagrangeCoefMap[x] = lagrangeCoef
 	}
@@ -32,13 +56,10 @@ func main() {
 
 	polinome := Polinome{
 		Degree: degree,
-		Coefs: []*big.Rat{
-			big.NewRat(0, 1),
-			big.NewRat(0, 1),
-			big.NewRat(0, 1),
-			big.NewRat(0, 1),
-			big.NewRat(0, 1),
-		},
+		Coefs:  make([]*big.Rat, degree+1),
+	}
+	for i := 0; i < degree+1; i++ {
+		polinome.Coefs[i] = big.NewRat(0, 1)
 	}
 
 	for x, coef := range lagrangeCoefMap {
@@ -46,7 +67,7 @@ func main() {
 		for xOrig := range bigTable {
 			if x.Cmp(xOrig) != 0 {
 				xCopy := big.NewRat(1, 1)
-				xCopy.Set(x)
+				xCopy.Set(xOrig)
 				roots = append(roots, xCopy)
 			}
 		}
@@ -57,18 +78,31 @@ func main() {
 		}
 		interPoli.Parse()
 
-		// fmt.Printf("Intermediate polinome: %v\n", interPoli)
+		// fmt.Printf("x: %v", x)
+		// fmt.Printf("roots: %v", interPoli.Roots)
+		// fmt.Printf("\nIntermediate polinome: %v\n", interPoli)
 
 		polinome.Add(interPoli)
+
 	}
 
 	fmt.Printf("Polinome:\nP = %s", polinome)
 
+	// xIlyana := big.NewRat(2010, 1)
+	// exact := polinome.Exact(xIlyana).FloatString(0)
+	// fmt.Printf("\nx = %v; result: %v", xIlyana, exact)
+
 	derivative := polinome.Derivative()
 	fmt.Printf("\nP' = %s", derivative)
 
+	// xVar7 := big.NewRat(5, 1)
+	// fmt.Printf("\nx = %v; result: %v", xVar7, derivative.Exact(xVar7))
+
 	secondDerivative := derivative.Derivative()
 	fmt.Printf("\nP'' = %s", secondDerivative)
+
+	x := big.NewRat(3, 10)
+	fmt.Printf("\nx = %v; result: %v", x, secondDerivative.Exact(x))
 }
 
 func wPolinome(table map[*big.Rat]*big.Rat, xTarget *big.Rat) *big.Rat {
@@ -108,6 +142,25 @@ func (p Polinome) String() string {
 		}
 	}
 	return s
+}
+
+func (p *Polinome) Exact(x *big.Rat) *big.Rat {
+	result := big.NewRat(0, 1)
+	for i, coef := range p.Coefs {
+		if i != len(p.Coefs)-1 {
+			power := p.Degree - i
+			powered := big.NewRat(1, 1)
+			powered.Set(x)
+			for j := 0; j < power-1; j++ {
+				powered.Mul(powered, x)
+			}
+			inter := big.NewRat(0, 1)
+			inter.Mul(coef, powered)
+			result.Add(result, inter)
+		}
+	}
+	result.Add(result, p.Coefs[len(p.Coefs)-1])
+	return result
 }
 
 func (p *Polinome) Derivative() Polinome {
