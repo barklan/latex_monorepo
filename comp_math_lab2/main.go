@@ -8,13 +8,63 @@ import (
 )
 
 func main() {
+	// table := map[float64]float64{
+	// 	0.0: 5.0,
+	// 	0.1: 2.5,
+	// 	0.2: 3.0,
+	// 	0.3: -2.5,
+	// 	0.4: -0.2,
+	// }
+
+	// Variant 1
 	table := map[float64]float64{
-		0.0: 5.0,
-		0.1: 2.5,
-		0.2: 3.0,
-		0.3: -2.5,
-		0.4: -0.2,
+		1910.0: 92228496.0,
+		1920.0: 106021537.0,
+		1930.0: 123202624.0,
+		1940.0: 132164569.0,
+		1950.0: 151325798.0,
+		1960.0: 179323175.0,
+		1970.0: 203211926.0,
+		1980.0: 226545805.0,
+		1990.0: 248709873.0,
+		2000.0: 281421906.0,
 	}
+	tableNtn := [][]float64{
+		{1910.0, 92228496.0},
+		{1920.0, 106021537.0},
+		{1930.0, 123202624.0},
+		{1940.0, 132164569.0},
+		{1950.0, 151325798.0},
+		{1960.0, 179323175.0},
+		{1970.0, 203211926.0},
+		{1980.0, 226545805.0},
+		{1990.0, 248709873.0},
+		{2000.0, 281421906.0},
+	}
+
+	// Variant 2
+	// table := map[float64]float64{
+	// 	5:  296,
+	// 	7:  520,
+	// 	9:  744,
+	// 	11: 982,
+	// 	13: 1248,
+	// 	15: 1570,
+	// 	17: 2256,
+	// 	19: 2256,
+	// 	21: 2256,
+	// }
+	// tableNtn := [][]float64{
+	// 	{5, 296},
+	// 	{7, 520},
+	// 	{9, 744},
+	// 	{11, 982},
+	// 	{13, 1248},
+	// 	{15, 1570},
+	// 	{17, 2256},
+	// 	{19, 2256},
+	// 	{21, 2256},
+	// }
 
 	// Variant 7
 	// table := map[float64]float64{
@@ -25,21 +75,96 @@ func main() {
 	// 	5.0: 0.1,
 	// }
 
-	// Variant 1
-	// table := map[float64]float64{
-	// 	1910.0: 92228496.0,
-	// 	1920.0: 106021537.0,
-	// 	1930.0: 123202624.0,
-	// 	1940.0: 132164569.0,
-	// 	1950.0: 151325798.0,
-	// 	1960.0: 179323175.0,
-	// 	1970.0: 203211926.0,
-	// 	1980.0: 226545805.0,
-	// 	1990.0: 248709873.0,
-	// 	2000.0: 281421906.0,
-	// }
-
 	bigTable := floatToBigTable(table)
+	Lagrange(bigTable)
+
+	bigTableNtn := floatToBigTableN(tableNtn)
+	NewTon(bigTableNtn)
+}
+
+func floatToBigTableN(table [][]float64) [][]*big.Rat {
+	bigTable := make([][]*big.Rat, len(table))
+	for i, xy := range table {
+		newPoint := make([]*big.Rat, 2)
+
+		newX := big.NewRat(int64(xy[0]*10), 10)
+		newPoint[0] = newX
+
+		newY := big.NewRat(int64(xy[1]*10), 10)
+		newPoint[1] = newY
+
+		bigTable[i] = newPoint
+	}
+	return bigTable
+}
+
+func NewTon(bigTable [][]*big.Rat) {
+	degree := len(bigTable) - 1
+	polinome := Polinome{
+		Degree: degree,
+		Coefs:  make([]*big.Rat, degree+1),
+	}
+	for i := 0; i <= degree; i++ {
+		polinome.Coefs[i] = big.NewRat(0, 1)
+	}
+
+	for i := 1; i <= degree; i++ {
+		roots := make([]*big.Rat, i)
+		for rootIndex := range roots {
+			roots[rootIndex] = bigTable[rootIndex][0]
+		}
+
+		a := DivDiff(bigTable, i)
+
+		interPoli := Polinome{
+			Degree: i,
+			Roots:  roots,
+			A:      a,
+		}
+		interPoli.Parse()
+
+		polinome.Add(interPoli)
+	}
+
+	polinome.Coefs[len(polinome.Coefs)-1].Add(polinome.Coefs[len(polinome.Coefs)-1], bigTable[len(bigTable)-1][1])
+
+	fmt.Println()
+	fmt.Printf("\nNewton's polinome:\nP = %v", polinome)
+
+	xIlyana := big.NewRat(2010, 1)
+	exact := polinome.Exact(xIlyana)
+	fmt.Printf("\nx = %v; result: %v", xIlyana, exact)
+
+	derivative := polinome.Derivative()
+	fmt.Printf("\nP' = %s", derivative)
+}
+
+func DivDiff(bigTable [][]*big.Rat, n int) *big.Rat {
+	result := big.NewRat(0, 1)
+
+	for j := 0; j <= n; j++ {
+		inter := big.NewRat(0, 1)
+		inter.Set(bigTable[j][1])
+
+		denominator := big.NewRat(1, 1)
+		for i := 0; i <= n; i++ {
+			if i != j {
+				devisionResult := big.NewRat(0, 1)
+				devisionResult.Set(bigTable[j][0])
+				devisionResult.Sub(devisionResult, bigTable[i][0])
+				denominator.Mul(denominator, devisionResult)
+			}
+		}
+		denominator.Inv(denominator)
+
+		inter.Mul(inter, denominator)
+		result.Add(result, inter)
+	}
+
+	return result
+}
+
+func Lagrange(bigTable map[*big.Rat]*big.Rat) {
 	lagrangeCoefMap := make(map[*big.Rat]*big.Rat)
 
 	for x, y := range bigTable {
@@ -48,7 +173,7 @@ func main() {
 		w := wPolinome(bigTable, x)
 		inverted := multi.Inv(w)
 		lagrangeCoef.Mul(y, inverted)
-		fmt.Printf("x: %s\t coef: %s\n", x, lagrangeCoef)
+		// fmt.Printf("x: %s\t coef: %s\n", x, lagrangeCoef)
 		lagrangeCoefMap[x] = lagrangeCoef
 	}
 
@@ -179,8 +304,18 @@ func (p *Polinome) Derivative() Polinome {
 }
 
 func (p *Polinome) Add(other Polinome) {
-	if p.Degree != other.Degree {
+	if p.Degree < other.Degree {
 		log.Panic("no")
+	} else if p.Degree > other.Degree {
+		zerosNumber := p.Degree - other.Degree
+		newSlice := make([]*big.Rat, zerosNumber)
+		for i := range newSlice {
+			newSlice[i] = big.NewRat(0, 1)
+		}
+
+		newSlice = append(newSlice, other.Coefs...)
+		other.Coefs = newSlice
+		other.Degree = p.Degree
 	}
 	for i := range p.Coefs {
 		p.Coefs[i].Add(p.Coefs[i], other.Coefs[i])

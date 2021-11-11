@@ -70,3 +70,37 @@ func TestMultiSumCombinations(t *testing.T) {
 		t.Errorf("got %v want %v", got, want)
 	}
 }
+
+func TestAddSlice(t *testing.T) {
+	p1 := Polinome{
+		Degree: 3,
+		Coefs: []*big.Rat{
+			big.NewRat(1, 1),
+			big.NewRat(2, 1),
+			big.NewRat(3, 1),
+		},
+	}
+
+	p2 := Polinome{
+		Degree: 2,
+		Coefs: []*big.Rat{
+			big.NewRat(5, 1),
+			big.NewRat(7, 1),
+		},
+	}
+
+	p1.Add(p2)
+
+	want := Polinome{
+		Degree: 3,
+		Coefs: []*big.Rat{
+			big.NewRat(1, 1),
+			big.NewRat(7, 1),
+			big.NewRat(10, 1),
+		},
+	}
+
+	if !reflect.DeepEqual(p1, want) {
+		t.Errorf("got %v want %v", p1, want)
+	}
+}
