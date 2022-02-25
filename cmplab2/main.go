@@ -5,6 +5,9 @@ import (
 	"log"
 	"math/big"
 	"math/bits"
+	"os"
+	"strconv"
+	"strings"
 )
 
 func data(variant int) (map[float64]float64, [][]float64) {
@@ -61,8 +64,45 @@ func data(variant int) (map[float64]float64, [][]float64) {
 			{0.3, -2.5},
 			{0.4, -0.2},
 		}
+	case 666:
+		var content string
+		f, err := os.ReadFile("data.txt")
+		if err == nil {
+			content = string(f)
+			content = strings.TrimSpace(content)
+		} else {
+			content = os.Args[1]
+		}
 
+		tableNtn = make([][]float64, 0)
+		strNums := strings.Split(content, ",")
+		temp := make([]float64, 2)
+		for i, str := range strNums {
+			parsed, err := strconv.ParseFloat(str, 64)
+			if err != nil {
+				fmt.Println("failed to parse float64")
+				log.Fatal(err)
+			}
+			if i%2 == 0 {
+				temp[0] = parsed
+			} else {
+				temp[1] = parsed
+				tempCopy := make([]float64, len(temp))
+				copy(tempCopy, temp)
+				tableNtn = append(tableNtn, tempCopy)
+			}
+		}
+		fmt.Println(tableNtn)
+
+		// tableNtn = [][]float64{
+		// 	{1.0, 5.0},
+		// 	{2.0, 7.0},
+		// 	{3.0, 8.0},
+		// 	{4.0, 10.0},
+		// 	{5.0, 11.0},
+		// }
 	}
+
 	table := map[float64]float64{}
 	for _, xy := range tableNtn {
 		table[xy[0]] = xy[1]
@@ -72,7 +112,7 @@ func data(variant int) (map[float64]float64, [][]float64) {
 }
 
 func main() {
-	variants := []int{1, 2, 5, 6, 7}
+	variants := []int{666}
 	for _, variant := range variants {
 		fmt.Printf("\n %d -----------\n", variant)
 		table, tableNtn := data(variant)
@@ -110,6 +150,15 @@ func main() {
 				x := big.NewRat(3, 10)
 				fmt.Printf("\nx = %v; result: %v", x, secondDerivative.Exact(x))
 				fmt.Printf("\nx = %v; approx: %v", x, secondDerivative.Exact(x).FloatString(5))
+			case 666:
+				fmt.Println()
+				derivative := polinome.Derivative()
+				fmt.Printf("First derivative: %v\n", derivative)
+				secondDerivative := derivative.Derivative()
+				fmt.Printf("Second derivative: %v\n", secondDerivative)
+				// x := big.NewRat(3, 10)
+				// fmt.Printf("\nx = %v; result: %v", x, secondDerivative.Exact(x))
+				// fmt.Printf("\nx = %v; approx: %v", x, secondDerivative.Exact(x).FloatString(5))
 
 			}
 			fmt.Println()
@@ -232,9 +281,8 @@ func Lagrange(bigTable map[*big.Rat]*big.Rat) Polinome {
 		}
 		interPoli.Parse()
 
-		// fmt.Printf("x: %v", x)
 		// fmt.Printf("roots: %v", interPoli.Roots)
-		// fmt.Printf("\nIntermediate polinome: %v\n", interPoli)
+		fmt.Printf("x: %v; Intermediate polinome: %v\n", x, interPoli)
 
 		polinome.Add(interPoli)
 
