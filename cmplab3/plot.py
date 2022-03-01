@@ -47,24 +47,26 @@ class Helper:
 
 
 # first graphic
-x = np.arange(2, 4, 0.00001)
+x = np.arange(1, np.pi+1, 0.00001)
 y = 3 * x + 4 * x ** 3 - 12 * x * x - 5
 
-with Helper("report_lab_1/images/eq_plot_1.pgf", figsize=(7, 7), axis=True):
+y = np.log(x) * np.abs(np.cos(128*x))
+
+with Helper("img/fig_1.pgf", figsize=(10, 10), axis=True):
     fig = plt.figure()
-    fig.set_size_inches(w=3, h=2)
+    fig.set_size_inches(w=8, h=5)
     ax = fig.add_subplot(111)
     ax.plot(x, y)
-    ax.plot([2.89], [0], 'o')
+    # ax.plot([2.89], [0], 'o')
 
 # second
-x = np.arange(-1.5, 1.5, 0.00001)
-y = 2 * np.tan(x) - x / 2 + 1
+# x = np.arange(-1.5, 1.5, 0.00001)
+# y = 2 * np.tan(x) - x / 2 + 1
 
-with Helper("report_lab_1/images/eq_plot_2.pgf", figsize=(7, 7), axis=True):
-    fig = plt.figure()
-    fig.set_size_inches(w=3, h=2)
-    ax = fig.add_subplot(111)
-    ax.set_ylim(-8, 8)
-    ax.plot(x, y)
-    ax.plot([-0.5713], [0], 'o')
+# with Helper("report_lab_1/images/eq_plot_2.pgf", figsize=(7, 7), axis=True):
+#     fig = plt.figure()
+#     fig.set_size_inches(w=3, h=2)
+#     ax = fig.add_subplot(111)
+#     ax.set_ylim(-8, 8)
+#     ax.plot(x, y)
+#     ax.plot([-0.5713], [0], 'o')

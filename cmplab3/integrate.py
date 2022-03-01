@@ -13,12 +13,18 @@ class Job:
     N: int
 
 
-def fnIlyana(x: float) -> float:
-    return 1 / (x * (3 * x + 2) - 1)
+def fnGleb(x: float) -> float:
+    return np.log(x) * np.abs(np.cos(128 * x))
 
 
-def ilyanaPecise() -> float:
-    return np.log(3.0) / 4.0
+def fnGlebPrecisePart(x: float) -> float:
+    return (np.sin(128 * x) - 128 * x * np.cos(128 * x)) / 2097152
+
+
+def fnGlebPrecise() -> float:
+    high = fnGlebPrecisePart(4.141593)
+    low = fnGlebPrecisePart(1)
+    return high - low
 
 
 def simpson(fn: t.Callable[[float], float], a: float, b: float) -> float:
@@ -73,14 +79,14 @@ def pretty(methodName: str, res: float, precise: float, took: float) -> None:
 if __name__ == "__main__":
     a: float = 1.0
     b: float = 21000.0
-    precise = ilyanaPecise()
+    precise = fnGlebPrecise()
     print("Precise:\t%.10f" % precise)
 
     nSimpson: float = 2.1e5
     res, took = integrate(
         Job(
             Method=simpson,
-            Target=fnIlyana,
+            Target=fnGleb,
             Low=a,
             High=b,
             N=int(nSimpson),
@@ -92,7 +98,7 @@ if __name__ == "__main__":
     res, took = integrate(
         Job(
             Method=leftRect,
-            Target=fnIlyana,
+            Target=fnGleb,
             Low=a,
             High=b,
             N=int(nLeft),
@@ -104,7 +110,7 @@ if __name__ == "__main__":
     res, took = integrate(
         Job(
             Method=rightRect,
-            Target=fnIlyana,
+            Target=fnGleb,
             Low=a,
             High=b,
             N=int(nLeft),
@@ -116,7 +122,7 @@ if __name__ == "__main__":
     res, took = integrate(
         Job(
             Method=centerRect,
-            Target=fnIlyana,
+            Target=fnGleb,
             Low=a,
             High=b,
             N=int(nLeft),
@@ -128,7 +134,7 @@ if __name__ == "__main__":
     res, took = integrate(
         Job(
             Method=trapezoid,
-            Target=fnIlyana,
+            Target=fnGleb,
             Low=a,
             High=b,
             N=int(nLeft),

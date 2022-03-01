@@ -1,53 +1,38 @@
-% !TeX program = xelatex
+%!TEX program = xelatex
 \documentclass[a4paper,11pt]{article}
 \usepackage{fontspec}
 \usepackage{amsmath}
-\setmonofont{JetBrains Mono}
-
+% \setmonofont{JetBrains Mono}
 \usepackage{unicode-math}
 \defaultfontfeatures{Scale=MatchLowercase}
 \setmainfont[Ligatures=TeX]{Noto Sans}
 % \setmathfont{STIX Two Math}
-
 % \usepackage{fullpage}
 \usepackage[a4paper,inner=1.7cm,outer=2.7cm,top=2cm,bottom=2cm,bindingoffset=1.2cm]{geometry}
-
 \usepackage{microtype}
-
-% Graphics
 \usepackage{graphicx}
 \usepackage{pgf}
 \usepackage{subfig}
 \usepackage{wrapfig}
-
 \usepackage{enumitem}
 \usepackage{fancyhdr}
 % \usepackage[font=scriptsize]{caption}
 \usepackage{index}
 \makeindex
-
-% SPACING
-% Paragraths without indentation
 \usepackage{parskip}
-% Line spacing
 \usepackage[onehalfspacing]{setspace}
-
-% Code blocks
 \usepackage{minted}
-\renewcommand{\MintedPygmentize}{/home/barklan/.local/bin/pygmentize}
-
+% \renewcommand{\MintedPygmentize}{/home/barklan/.local/bin/pygmentize}
 \usepackage[colorlinks=true,urlcolor=blue]{hyperref}
-
 \usepackage{subfiles} % Best loaded last in the preamble
 \usepackage{mathtools}
-
 \renewcommand{\contentsname}{Содержание}
 
 \title{
-    Лаборатораная работа 2 \\
-    "Приближение функций (интерполяция)"
+    Лаборатораная работа 3 \\
+    "Численное интегрирование функций"
 }
-\date{2021-11-09}
+\date{2022-02-01}
 \author{Глеб Бузин - Б03-907}
 \begin{document}
 
@@ -57,13 +42,160 @@
 \newpage
 
 
+\section{Теория}
 
-% \newpage
-\subfile{sections/theory}
+\subsection{Численное интегрирование}
 
-\subfile{sections/introduction}
+Численное интегрирование - методы вычисления значения интеграла
 
-\subfile{sections/exit}
+$$
+J=\int ^{b}_{a}f\left( x\right) dx
+$$
+
+Самые широко используемые в практических вычислениях - методы прямоугольников, трапеций, Симпсона.
+Способ их получения состоит в следующем. Разобьем отрезок интегрирования $[a, b]$ на $N$ элементарных шагов. Точки разбиения $x_n(n = 0,1,...,N); h_n = x_{n+1} - x_n$, так что
+$\sum_{n = 0}^{N - 1}h_n = b - a $.
+В дальнейшем будем называть $ x_n $ узлами, $h_n$ - шагами интегрирования.
+(В частном случае шаг интегрирования может быть постоянным $h = (b - a)/N$.) Искомое значение интеграла представим в виде
+
+\begin{equation}
+J=\sum ^{N-1}_{n=0}\int ^{x_{n+1}}_{x_{n}}f\left( x\right) dx= \sum ^{N-1}_{n=0}J_{n},
+\end{equation}
+
+где $ J_n = \int ^{x_{n+1}}_{x_{n}}f\left( x\right) dx$.
+
+\subsection{Метод прямоугольников}
+
+Считая $h_n$ малым параметром, заменим $J_n$ в (1) площадью прямоугольника с основанием $h_n$ И высотой $f_{n+1/2} = f(x_n + h_n/2)$. Тогда придем к локальной формуле прямоугольников
+
+$$
+\tilde{J}_{n}=h_n f_{n+1/2}
+$$
+
+Суммируя в соответствии с (1) приближенные значения по всем элементарным отрезкам, получаем формулу прямоугольников для вычисления приближения $J$:
+
+$$
+\tilde{J} = \sum_{n=0}^{N-1} h_n f_{n+1/2}
+$$
+
+В частном случае, когда $h_n = h = const$, формула прямоугольников
+записывается в виде
+
+$$
+\tilde{J} = h \sum_{n=0}^{N-1} f_{n+1/2}
+$$
+
+\subsection{Метод трапеций}
+
+На элементарном отрезке $ [x_n, x_{n+1}] $ заменим подынтегральную функцию
+интерполяционным полиномом первой степени:
+
+$$
+f(x) \approx f_n + \frac{f_{n+1} - f_n}{x_{n+1} - x_n}(x - x_n)
+$$
+
+Выполняя интегрирование по отрезку, приходим к локальной формуле
+трапеций:
+
+\begin{equation}
+\tilde{J_n} = \frac{1}{2} (x_{n+1} - x_n)(f_{n+1} + f_n) = \frac{1}{2} h_n (f_{n+1} + f_n)
+\end{equation}
+
+Суммируя (2) по всем отрезкам, получаем формулу трапеций
+для вычисления приближения к $J$:
+
+$$
+\tilde{J} = \frac{1}{2} \sum_{n=0}^{N-1} h_n (f_n + f_{n+1})
+$$
+
+\subsection{Метод Симпсона}
+
+На элементарном отрезке $[x_n, x_{n+1}]$,
+привлекая значение функции в середине, заменим подынтегральную функцию интерполяционным полиномом второй степени
+
+\begin{equation}
+\begin{split}
+f(x) \approx P_2(x) = f_{n+1/2} + \frac{f_{n+1} - f_n}{h_n} (x - \frac{x_{n+1} + x_n}{2}) + \\
++ \frac{f_{n+1} - 2f_{n+1/2} + f_n}{2(h_n/2)^2} (x - \frac{x_{n+1} + x_n}{2})^2
+\end{split}
+\end{equation}
+
+Вычисляя интеграл от полинома по отрезку $[x_n, x_{n+1}]$, Приходим к
+локальной формуле Симпсона
+
+\begin{equation}
+\tilde{J_n} = \frac{h_n}{6} (f_n + 4f_{n+1/2} + f_{n+1})
+\end{equation}
+
+Суммируя (4) по всем отрезкам, получаем формулу Симпсона для
+вычисления приближения к $J$:
+
+\begin{equation}
+\tilde{J} = \frac{1}{6} \sum_{n=0}^{N-1} h_n (f_n + 4f_{n+1/2} + f_{n+1})
+\end{equation}
+
+\subsection{Погрешность квадратурных формул}
+
+Для рассмотренных квадратурных формул оценки погрешности имеют вид:
+
+Формула прямоугольников (левых и правых) - $ |\tilde{J} - J| \leq \frac{1}{2}(b - a)M_1 \overline{h} $
+
+Формула прямоугольников (средних) - $ |\tilde{J} - J| \leq \frac{1}{24}(b - a)M_2 \overline{h}^2 $
+
+Формула трапеций - $ |\tilde{J} - J| \leq \frac{1}{12}(b - a)M_2 \overline{h}^2 $
+
+Формула Симпсона - $ |\tilde{J} - J| \leq \frac{1}{180}(b - a)M_4 \overline{h}^4 $
+
+\section{Задача}
+
+Используя метод численного интегрирования вычислить интеграл от заданной функции $f(x)$ по заданному интервалу $[a,b]$.
+
+$$
+\int ^{4.14159}_{1}\ln \left( x\right) \left| \cos \left( 128x\right) \right| dx
+$$
+
+\begin{figure}[ht]
+    \input{./img/fig_1.pgf}
+    % \centering
+    % \subfloat[\centering ]{{\input{./img/plot_1.pgf} }}
+    \caption{$ f(x) = ln(x)|cos(128x)| $ \\ from $1$ to $\pi+1$ }
+    % \label{fig:example}%
+\end{figure}
+
+\section{Аналитическое решение интеграла}
+
+Применим интегрирование по частям c заменой
+
+\begin{equation}
+\begin{split}
+u = ln(x), du = \frac{1}{x}dx \\
+v = \frac{1}{128}sin(128x)
+\end{split}
+\end{equation}
+
+\begin{equation}
+\begin{split}
+\int ln(x) |cos(128x)|dx = \frac{ln(x)sin(128x)}{128} - \int \frac{sin(128x)}{128x}dx
+\end{split}
+\end{equation}
+
+\begin{equation}
+    \begin{split}
+        \int_1^{4.141593} ln(x) |cos(128x)|dx =
+    \end{split}
+\end{equation}
+
+\section{Численное решение интеграла}
+
+\subsection{Выбор шага интегрирования}
+
+\subsection{Метод прямоугольников}
+
+\subsection{Метод трапеций}
+
+\subsection{Метод Симпсона}
+
+\section{Вывод}
 
 % \begin{figure}[ht]
     % \centering
