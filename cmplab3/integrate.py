@@ -78,7 +78,7 @@ def pretty(methodName: str, res: float, precise: float, took: float) -> None:
 
 if __name__ == "__main__":
     a: float = 1.0
-    b: float = 21000.0
+    b: float = 4.14159
     precise = fnGlebPrecise()
     print("Precise:\t%.10f" % precise)
 
