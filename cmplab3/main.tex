@@ -5,7 +5,8 @@
 % \setmonofont{JetBrains Mono}
 \usepackage{unicode-math}
 \defaultfontfeatures{Scale=MatchLowercase}
-\setmainfont[Ligatures=TeX]{Noto Sans}
+% \setmainfont[Ligatures=TeX]{Noto Sans}
+\setmainfont[Ligatures=TeX]{Noto Serif}
 % \setmathfont{STIX Two Math}
 % \usepackage{fullpage}
 \usepackage[a4paper,inner=1.7cm,outer=2.7cm,top=2cm,bottom=2cm,bindingoffset=1.2cm]{geometry}
@@ -32,10 +33,15 @@
     Лаборатораная работа 3 \\
     "Численное интегрирование функций"
 }
-\date{2022-02-01}
-\author{Глеб Бузин - Б03-907}
-\begin{document}
+\date{1 Марта, 2022}
+\author{
+    Глеб Бузин \\
+    Московский физико-технический институт
+}
+% \date{\today}
 
+
+\begin{document}
 \maketitle
 \newpage
 \tableofcontents
@@ -179,113 +185,238 @@ v = \frac{1}{128}sin(128x)
 \end{split}
 \end{equation}
 
+Интеграл от функции $f(x) = sinc(x)$ не выражается в элементарных функциях.
+
 \section{Численное решение интеграла}
 
-\subsection{Выбор шага интегрирования}
+\subsection{Выбор шага интегрирования по правилу Рунге}
 
+Интеграл вычисляется по выбранной формуле (прямоугольников, трапеций, парабол Симпсона) при числе шагов, равном $n$, а затем при числе шагов, равном $2n$. Погрешность вычисления значения интеграла при числе шагов, равном $2n$, определяется по формуле Рунге:
 
+$$
+\delta_{2n} \approx \Theta |I_{2n} - I_n|
+$$
+
+Для формул прямоугольников и трапеций $\Theta = \frac{1}{3}$, а для формулы Симпсона $\Theta = \frac{1}{15}$
+
+Таким образом, интеграл вычисляется для последовательных значений числа шагов
+$$ N=n_{0},2n_{0},4n_{0},\dots $$
+где $ n_{0}$ - начальное число шагов. Процесс вычислений заканчивается, когда для очередного значения $N$ будет выполнено условие $\Delta _{2n}<\varepsilon $, где $ \varepsilon $ - заданная точность.
 
 \subsection{Метод прямоугольников}
 
+Определим методы интегрирования для методов средних, левых и правых прямоугольников
+
+\begin{minted}
+    [
+    frame=lines,
+    framesep=2mm,
+    baselinestretch=1.2,
+    fontsize=\footnotesize,
+    % label=bisection.go,
+    linenos
+    ]
+    {go}
+func fnGleb(x float64) float64 {
+    return math.Log(x) * math.Abs(math.Cos(128*x))
+}
+
+type Job struct {
+    Method func(Fn, float64, float64) float64
+    Target Fn
+    Low    float64
+    High   float64
+    H      float64
+}
+
+func integrateSync(
+    job Job,
+) float64 {
+    xNext := job.Low + job.H
+    small := 0.0
+    total := 0.0
+    for x := job.Low; xNext <= job.High; xNext += job.H {
+        small = job.Method(job.Target, x, xNext)
+        total += small
+        x = xNext
+    }
+
+    return total
+}
+
+type Fn func(float64) float64
+
+func leftRect(fn Fn, a, b float64) float64 {
+    return fn(a) * (b - a)
+}
+
+func rightRect(fn Fn, a, b float64) float64 {
+    return fn(b) * (b - a)
+}
+
+func centerRect(fn Fn, a, b float64) float64 {
+    return fn((b+a)/2) * (b - a)
+}
+\end{minted}
+
+Будем считать по методу Рунге, с начальным $n = 1000$ до тех пор, пока погрешность не достигнет $\varepsilon = 10^{-4}$:
+
+\begin{minted}
+    [
+    frame=lines,
+    framesep=2mm,
+    baselinestretch=1.2,
+    fontsize=\footnotesize,
+    % label=phy,
+    linenos
+    ]
+    {go}
+func ascend(job Job) float64 {
+    var n int64 = 1000
+    var prev float64
+    var res float64
+    for {
+        job.H = (job.High - job.Low) / float64(n)
+        res = integrateSync(job)
+        if (job.Teta * math.Abs(res-prev)) < precision {
+            break
+        }
+        prev = res
+        n *= 2
+    }
+    return res
+}
+\end{minted}
+
+\textbf{Метод левых прямоугольников:}
+
+\begin{small}
+\begin{verbatim}
+    h = 0.0031415930; integral = 1.7415615747
+    h = 0.0015707965; integral = 1.7438347568
+    h = 0.0007853983; integral = 1.7435126677
+    h = 0.0003926991; integral = 1.7443890902
+    h = 0.0001963496; integral = 1.7442964207
+    final result: 1.7442964207
+    final h = 0.000196349562500
+\end{verbatim}
+\end{small}
+
+Конечное значение интеграла $J = 1.7443 \pm 10^{-4}$ при шаге $h = 0.0001963495625$.
+
+\textbf{Метод правых прямоугольников:}
+
+\begin{small}
+\begin{verbatim}
+    h = 0.0031415930; integral = 1.7431477123
+    h = 0.0015707965; integral = 1.7453815298
+    h = 0.0007853983; integral = 1.7442012938
+    h = 0.0003926991; integral = 1.7447757834
+    h = 0.0001963496; integral = 1.7444846443
+    FINAL RESULT: 1.7444846443
+    final h = 0.000196349562500
+\end{verbatim}
+\end{small}
+
+Конечное значение интеграла $J = 1.7445 \pm 10^{-4}$ при шаге $h = 0.0001963495625$.
+
+\textbf{Метод средних прямоугольников:}
+
+\begin{small}
+\begin{verbatim}
+    h = 0.0031415930; integral = 1.7421340596
+    h = 0.0015707965; integral = 1.7445678307
+    h = 0.0007853983; integral = 1.7438449587
+    h = 0.0003926991; integral = 1.7445801984
+    h = 0.0001963496; integral = 1.7442740465
+    h = 0.0000981748; integral = 1.7445462512
+    FINAL RESULT: 1.7445462512
+    final h = 0.000098174781250
+\end{verbatim}
+\end{small}
+
+Конечное значение интеграла $J = 1.7445 \pm 10^{-4}$ при шаге $h = 0.0000981747813$.
+
 \subsection{Метод трапеций}
+
+\begin{minted}
+    [
+    frame=lines,
+    framesep=2mm,
+    baselinestretch=1.2,
+    fontsize=\footnotesize,
+    % label=phy,
+    linenos
+    ]
+    {go}
+func trapezoid(fn Fn, a, b float64) float64 {
+    return (fn(a) + fn(b)) * (b - a) / 2
+}
+\end{minted}
+
+Итерации:
+
+\begin{small}
+\begin{verbatim}
+    h = 0.0031415930; integral = 1.7423546435
+    h = 0.0015707965; integral = 1.7446081433
+    h = 0.0007853983; integral = 1.7438569807
+    h = 0.0003926991; integral = 1.7445824368
+    h = 0.0001963496; integral = 1.7443905325
+    FINAL RESULT: 1.7443905325
+    final h = 0.000196349562500
+\end{verbatim}
+\end{small}
+
+Конечное значение интеграла $J = 1.7444 \pm 10^{-4}$ при шаге $h = 0.0001963495625$.
 
 \subsection{Метод Симпсона}
 
+\begin{minted}
+    [
+    frame=lines,
+    framesep=2mm,
+    baselinestretch=1.2,
+    fontsize=\footnotesize,
+    % label=phy,
+    linenos
+    ]
+    {go}
+func simpson(fn Fn, a, b float64) float64 {
+    return ((b - a) / 6) * (fn(a) + 4*fn((a+b)/2) + fn(b))
+}
+\end{minted}
+
+Итерации:
+
+\begin{small}
+\begin{verbatim}
+    h = 0.0031415930; integral = 1.7422075876
+    h = 0.0015707965; integral = 1.7445812682
+    h = 0.0007853983; integral = 1.7438489660
+    FINAL RESULT: 1.7438489660
+    final h = 0.000785398250000
+\end{verbatim}
+\end{small}
+
+Конечное значение интеграла $J = 1.7438 \pm 10^{-4}$ при шаге $h = 0.0007853982500$.
+
 \section{Вывод}
 
-% \begin{figure}[ht]
-    % \centering
-    % \includegraphics[width=15cm]{01.png}
-% \end{figure}
+К численному интегрированию приходится обращаться, когда требуется вычислить определённый интеграл от функций, заданных таблично, или
+непосредственное нахождение первообразной затруднительно. Последнее,
+например, возникает при сложном аналитическом задании подинтегральной
+функции, а также, если интеграл не берётся в элементарных функциях.
 
+При использовании разных методов значение интегала и шаг для получения заданной точности соответственно:
 
-% \begingroup
+\begin{itemize}
+\item Метод левых прямоугольников $J = 1.7443 \pm 10^{-4}$ при шаге $h = 0.0001963495625$.
+\item Метод правых прямоугольников $J = 1.7445 \pm 10^{-4}$ при шаге $h = 0.0001963495625$.
+\item Метод средних прямоугольников $J = 1.7445 \pm 10^{-4}$ при шаге $h = 0.0000981747813$.
+\item Метод трапеций $J = 1.7444 \pm 10^{-4}$ при шаге $h = 0.0001963495625$.
+\end{itemize}
 
-%     \setlength{\intextsep}{0pt}
-%     \setlength{\columnsep}{15pt}
-
-%     \begin{wrapfigure}{r}{0.45\textwidth}
-%         \centering
-%         \includegraphics[width=\linewidth]{01.png}
-%         \caption{Pretty picture}\label{fig:prettypic}
-%     \end{wrapfigure}
-
-% \endgroup
-
-% \section{Spacing}
-% Just random \\
-% The second line is indented. \\[10pt]
-% Another line.
-
-% put this before the paragraph to avoid indentation
-% \noindent
-
-% Numbered list!
-
-% \setlist{nolistsep}
-% \begin{enumerate}[label=\arabic*, font=\bfseries]
-%         \item Add teh sdfsfdfs
-%         \item More
-% \end{enumerate}
-% \bigskip
-
-% Description!
-
-% \begin{description}
-%     \item[Paladium] Some metal
-%     \item[Titanium] Another very useful metal
-% \end{description}
-% \bigskip
-
-% Tabbing!
-
-% \begin{tabbing}
-%     Customer \= Name \hspace*{1.5cm} \= Street \hspace*{1.5cm} \= City \\
-%     \> Derek Banas \> 123 Main St \> Pittsburgh \\
-% \end{tabbing}
-% \bigskip
-
-% \subsection{Tables!}
-
-% \begin{table}[!htbp]
-% \centering % this will center the table
-% \begin{tabular}{c|c|c}
-%     \textbf{Name} & \textbf{Command} & \textbf{Sample Text} \\
-%     \hline
-%     emphasise & \verb|\emph| & \emph{fucker}
-% \end{tabular}
-% \caption{Ways to emphasise text}
-% \end{table}
-
-% \section{Type emphasis \& Sizing}
-% \label{sec:typeemp}
-% \itshape italic, \scshape small caps, \upshape upright, \normalfont back to normal
-
-% Get smaller: \normalsize{normal}, \small{small}, \footnotesize{footnote}, \scriptsize{script}, \tiny{tiny}
-
-% Get bigger: \large{large}, \Large{larger}, \LARGE{larger}, \huge{huge}, \Huge{hugest}
-
-% \begin{LARGE}
-%     I want to use a big font
-% \end{LARGE}
-
-% \normalsize{Back to normal}
-
-% \section{\textsf{Font Families}}
-
-% We can {\sffamily temporarily change} a font family.
-
-% \begin{quote}
-%     "I like long walks"
-%     - Fred Allen
-% \end{quote}
-
-
-% % With minted
-
-% % \begin{minted}{python}
-% %     for i in range(10):
-% %         print("Hey!")
-% % \end{minted}
+\textbf{Метод Симпсона достигает заданной погрешности $\varepsilon = 10^{-4}$ при наименьшем количестве разбиений. Найденное значение интеграла при этом $J = 1.7438\pm10^{-4}$.}
 
 \end{document}
