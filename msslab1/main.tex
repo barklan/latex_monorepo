@@ -1,0 +1,224 @@
+%!TEX program = xelatex
+\documentclass[a4paper,14pt]{extarticle}
+\usepackage{fontspec}
+\setmainfont[Ligatures={TeX}]{Liberation Serif}
+\usepackage{graphicx}
+\graphicspath{{./images/}}
+\usepackage{float}
+\usepackage{geometry}
+\geometry{top=2cm}
+\geometry{bottom=2cm}
+\geometry{left=3cm}
+\geometry{right=1cm}
+\usepackage{setspace}
+\onehalfspacing
+\usepackage{amsthm,amssymb, amsmath}
+\usepackage{booktabs}
+\usepackage{svg}
+\usepackage{multirow}
+\usepackage{siunitx}
+\usepackage{enumitem}
+\usepackage{csquotes}
+\usepackage{graphicx}
+\usepackage{microtype}
+\usepackage{pgf}
+\usepackage{subfig}
+\usepackage{wrapfig}
+\usepackage[bookmarks]{hyperref}
+\renewcommand{\contentsname}{Содержание}
+\renewcommand{\tablename}{Таблица}
+\renewcommand{\figurename}{Схема}
+\usepackage[parfill]{parskip}
+
+\begin{document}
+
+\thispagestyle{empty}
+\begin{center}
+    МОСКОВСКИЙ ФИЗИКО-ТЕХНИЧЕСКИЙ ИНСТИТУТ\\
+    (ГОСУДАРСТВЕННЫЙ УНИВЕРСИТЕТ)\\
+    Физтех-школа аэрокосмических технологий
+
+  \vspace{5cm}
+    РАСЧЕТНО-ГРАФИЧЕСКАЯ РАБОТА\\
+    \vspace{0.4cm}
+    по дисциплине\\
+    \vspace{0.4cm}
+    «Метрология, стандартизация и сертификация»\\
+    \vspace{0.4cm}
+    (Вариант 4)
+  \vspace{1.5cm}
+\end{center}
+\begin{flushright}
+    Выполнил:\\
+    студент 937 группы\\
+    Бузин Глеб Борисович
+
+  \vspace{1cm}
+    Проверил:\\
+    Моисеев Леонид Фёдорович
+\end{flushright}
+\vfill
+\begin{center}
+  Москва\\
+  2022
+\end{center}
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
+\section{Постановка задачи}
+
+Необходимо найти ЭДС источника постоянного тока (с использованием закона Ома), при
+которой в нагрузке ($r_x$) с минимальной погрешностью выделяется требуемая мощность $P$.
+
+\subsection{Исходные данные}
+
+\begin{table}[ht]
+  \centering
+  \begin{tabular}{|c|c|c|c|c|}
+   \hline
+  № варианта & \parbox[t]{3cm}{№ типа\\вольтметра} & \parbox[t]{3cm}{№ типа\\амперметра} & \parbox[t]{4cm}{Выделяемая\\мощность P, Вт} & $R_{вн}$ \\
+   \hline
+   4  & 5 & 2 & 0.5 & 10 \\
+   \hline
+  \end{tabular}
+  \caption{Параметры варианта}
+  \label{tableref1}
+\end{table}
+
+\begin{table}[ht]
+  \centering
+  \begin{tabular}{|c|c|c|}
+   \hline
+     & № типа вольтметра & 5 \\
+   \hline
+   1 & Диапазон измерений, В & 0-50 \\
+   \hline
+   2 & Внутреннее сопротивление, кОм & 250 \\
+   \hline
+   3 & Класс точности & 0.1/0.2 \\
+   \hline
+  \end{tabular}
+  \caption{Параметры вольтметра}
+  \label{tableref2}
+\end{table}
+
+\begin{table}[ht]
+  \centering
+  \begin{tabular}{|c|c|c|}
+   \hline
+     & № типа амперметра & 2 \\
+   \hline
+   1 & Диапазон измерений, мА & 0-20 \\
+   \hline
+   2 & Внутреннее сопротивление, кОм & 0.01 \\
+   \hline
+   3 & Класс точности & 0.02/0.02 \\
+   \hline
+  \end{tabular}
+  \caption{Параметры амперметра}
+  \label{tableref3}
+\end{table}
+
+\section{Решение}
+
+\begin{figure}[H]
+ \centering
+  \includesvg[width=0.5\textwidth]{chart1.svg}
+  \caption{Изначальная схема}
+  \label{pictureref1}
+\end{figure}
+
+% Можем сослаться на рисунок~\ref{pictureref}.
+
+\begin{figure}[H]
+ \centering
+  \includesvg[width=0.7\textwidth]{chart2.svg}
+  \caption{Преобразованная схема}
+  \label{pictureref2}
+\end{figure}
+
+Закон Ома для схемы:
+
+\begin{align}
+  &I_A = I_V + I_r \\
+  &U_V = U_r = U \\
+  &\varepsilon = U_V + I_A (R_A + R_{\varepsilon})
+\end{align}
+
+Так как внутреннее сопротивление источника $R_{\varepsilon}$ = 0, то ЭДС равна:
+
+\begin{align}
+  \varepsilon = U_V + I_A R_A
+\end{align}
+
+Выделяемая на R мощность P равна:
+
+\begin{align}
+  P = I_r U_r = I_r U
+\end{align}
+
+Следовательно, из (1) и (4) получаем:
+
+\begin{align}
+  I_A = \frac{P}{U} + \frac{U}{R_V} = \frac{P R_V + U^2}{U R_V}
+\end{align}
+
+Погрешность вычисления мощности $\Delta P = P \times \delta_p$,
+
+\begin{align}
+  \delta_p = \sqrt{\delta_A^2 + \delta_V^2}
+\end{align}
+
+где $\delta_p \delta_v \delta_a$ - относительные погрешности измерения мощности, напряжения и тока соответственно.
+
+\begin{align}
+  \delta_A = \pm c_A + d_A (|\frac{D_A}{I_A}| - 1))
+\end{align}
+
+где $c_A, d_A$ - класс точности амперметра, $D_A$ - диапазон измерений амперметра.
+
+\begin{align}
+  \delta_V = \pm c_V + d_V (|\frac{U_K}{U_V}| - 1))
+\end{align}
+
+где $c_V, d_V$ - класс точности вольтметра, $U_k$ – нормирующее значение напряжения (предельное значение),  $U_v$ - действительное значение измеряемой величины.
+
+Для решения задачи нам нужно минимизировать величину $\delta_p$ по напряжению.
+Для удобства исследуем производную $(\delta_p^2)'$ и найдем значение U,\\
+которое минимизирует $\delta_p^2$. Это же значение U будет минимизировать величину δp, т.к. возведение в квадрат и извлечение корня – монотонные преобразования.
+
+\begin{align*}
+  \delta_p^2 &= \delta_A^2 + \delta_V^2 = \\
+  &= (c_A + d_A (|\frac{D_A}{I_A}| - 1))^2 + (c_V + d_V (|\frac{U_K}{U_V}| - 1))^2 = \\
+  &= (0.02 + 0.02(|\frac{5000U}{125*10^3 + U^2}| - 1))^2 + \\
+  &+ (0.1 + 0.2(|\frac{50}{U_V}| - 1))^2
+\end{align*}
+
+\begin{figure}[H]
+  \input{./img/mssplot.pgf}
+  \caption{$ \delta^2(U) $ на диапазоне измерений }
+\end{figure}
+
+Функция строго убывающая, т.е. минимум достигается в правой краевой точке, т.е. там, где напряжение будет наибольшим на допустимом множестве.
+
+Таким образом, подставим значение $U = 50 B$ в (6):
+
+\begin{align}
+  I_A = \frac{0.5 \times 250 \times 10^3 + 50^2}{50 \times 250 \times 10^3} = 0.0102 (A)
+\end{align}
+
+Найденное значение $I_A$ попадает в заданный диапазон (0-20 мА), и таким образом минимум достигается при $I_A = 10.2$ мА.
+
+Найдем ЭДС источника из (4):
+
+\begin{align}
+  \varepsilon = 50 + 0.0102 \times 0.01 \times 10^3 = 50.102 (B)
+\end{align}
+
+Погрешность определения мощности на нагрузке минимальна при $ \varepsilon = 50.102 B $.
+
+\end{document}

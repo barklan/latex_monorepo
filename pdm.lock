@@ -169,7 +169,7 @@ summary = "A built-package format for Python"
 
 [metadata]
 lock_version = "3.1"
-content_hash = "sha256:35874434c41a5583c8f0b904a7deef3aa15d7c41a99cb6f23ec7988e42bfc053"
+content_hash = "sha256:078e29895b3c30d5a5661555e6e3773e1011ae0d66c822d65675220632ec982c"
 
 [metadata.files]
 "black 22.1.0" = [

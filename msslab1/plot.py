@@ -67,20 +67,10 @@ class Helper:
 # ax.plot([2.89], [0], 'o')
 
 
-x = np.arange(-0.5, 0.5, 0.001)
-# y = 2 * (27 * x * x + 18 * x + 7) / ((3 * x * x + 2 * x - 1) ** 3)
-y = -(2 * (3 * x + 1)) / ((3 * x * x + 2 * x - 1) ** 2)
-y = 24*(405*x*x*x*x + 540*x*x*x +630 *x*x + 300*x + 61) / ((3*x*x + 2*x -1)**5)
-with Helper("img/ilyana_1.png", figsize=(15, 15), axis=True):
-    fig = plt.figure()
-    fig.set_size_inches(w=3, h=2)
-    ax = fig.add_subplot(111)
-    ax.set_ylim(-2, 50)
-    ax.plot(x, y)
-
-x = np.arange(1.0, 4.14, 0.001)
-y = -np.abs(np.cos(128*x))/x**2 - (16384*np.log(x)*(np.cos(128*x)**2)/np.abs(np.cos(128*x))) - (256*np.sin(128*x)*np.cos(128*x))/(x*np.abs(np.cos(128*x))) - (16384*np.log(x)*(np.sin(128*x)**2)*(np.cos(128*x)**2))/np.abs(np.cos(128*x))**3 + (16384*np.log(x)*np.sin(128*x)**2)/np.abs(np.cos(128*x))
-with Helper("img/second.pgf", figsize=(15, 15), axis=True):
+x = np.arange(0, 50, 0.01)
+# y = -np.abs(np.cos(128*x))/x**2 - (16384*np.log(x)*(np.cos(128*x)**2)/np.abs(np.cos(128*x))) - (256*np.sin(128*x)*np.cos(128*x))/(x*np.abs(np.cos(128*x))) - (16384*np.log(x)*(np.sin(128*x)**2)*(np.cos(128*x)**2))/np.abs(np.cos(128*x))**3 + (16384*np.log(x)*np.sin(128*x)**2)/np.abs(np.cos(128*x))
+y = (0.02 + 0.02 * (np.abs(5000*x/(125*1000 + x**2)) - 1))**2 + (0.1 + 0.2 *(np.abs(50/x) - 1))**2
+with Helper("img/mssplot.pgf", figsize=(15, 15), axis=True):
     fig = plt.figure()
     fig.set_size_inches(w=8, h=5)
     ax = fig.add_subplot(111)
