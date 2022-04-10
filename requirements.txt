@@ -1,0 +1,5 @@
+black
+scipy
+numpy
+matplotlib
+seaborn
